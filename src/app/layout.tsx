@@ -1,5 +1,7 @@
 "use client";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 import { Inter } from "next/font/google";
 import AppHeader from "@/components/app.header";
 import AppFooter from "@/components/app.footer";
@@ -17,7 +19,8 @@ export default function RootLayout({
       <body className={inter.className}>
         <AppHeader />
         <Container>{children}</Container>
-        <AppFooter></AppFooter>
+        <AppFooter />
+        <ToastContainer />
       </body>
     </html>
   );

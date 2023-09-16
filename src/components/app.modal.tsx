@@ -3,7 +3,8 @@ import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
-
+import { toast } from "react-toastify";
+import { mutate } from "swr";
 interface IProps {
   showModal: boolean;
   setShowModal: (value: boolean) => void;
@@ -14,7 +15,29 @@ const AppModal = (props: IProps) => {
   const [title, setTitle] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [content, setContent] = useState<string>("");
-  const handleSubmit = () => {};
+  const handleSubmit = async () => {
+    if (!title || !author || !content) {
+      toast.error("Input....");
+      return false;
+    }
+    try {
+      const response = await fetch("http://localhost:8000/blogs", {
+        method: "POST", // or 'PUT'
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, author, content }),
+      });
+
+      const result = await response.json();
+      console.log("Success:", result);
+      toast.success("Created!");
+      handleClear();
+      mutate("http://localhost:8000/blogs");
+    } catch (error) {
+      toast.error(`${error}`);
+    }
+  };
   const handleClear = () => {
     setTitle("");
     setAuthor("");
@@ -65,7 +88,7 @@ const AppModal = (props: IProps) => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button variant="secondary" onClick={() => handleClear()}>
             Close
           </Button>
           <Button onClick={() => handleSubmit()} variant="primary">
