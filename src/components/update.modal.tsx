@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
@@ -8,21 +8,29 @@ import { mutate } from "swr";
 interface IProps {
   showModal: boolean;
   setShowModal: (value: boolean) => void;
+  blog: IBlog | null;
+  setBlog: (blog: IBlog | null) => void;
 }
 
-const AppModal = (props: IProps) => {
-  const { showModal, setShowModal } = props;
+const UpdateModal = (props: IProps) => {
+  const { showModal, setShowModal, blog, setBlog } = props;
   const [title, setTitle] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
   const [content, setContent] = useState<string>("");
+  useEffect(() => {
+    setTitle(blog?.title!);
+    setAuthor(blog?.author!);
+    setContent(blog?.content!);
+  }, [blog]);
+
   const handleSubmit = async () => {
     if (!title || !author || !content) {
       toast.error("Input....");
       return false;
     }
     try {
-      const response = await fetch("http://localhost:8000/blogs", {
-        method: "POST", // or 'PUT'
+      const response = await fetch(`http://localhost:8000/blogs/${blog?.id}`, {
+        method: "PUT", // or 'PUT'
         headers: {
           "Content-Type": "application/json",
         },
@@ -31,7 +39,7 @@ const AppModal = (props: IProps) => {
 
       const result = await response.json();
       //   console.log("Success:", result);
-      toast.success("Created!");
+      toast.success("Updated!");
       handleClear();
       mutate("http://localhost:8000/blogs");
     } catch (error) {
@@ -43,6 +51,7 @@ const AppModal = (props: IProps) => {
     setAuthor("");
     setContent("");
     setShowModal(false);
+    setBlog(null);
   };
   return (
     <>
@@ -54,7 +63,7 @@ const AppModal = (props: IProps) => {
         size="lg"
       >
         <Modal.Header closeButton>
-          <Modal.Title>Add New Blog</Modal.Title>
+          <Modal.Title>Update Blog</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -63,7 +72,7 @@ const AppModal = (props: IProps) => {
               <Form.Control
                 type="text"
                 placeholder="..."
-                value={title}
+                value={title || ""}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </Form.Group>
@@ -72,7 +81,7 @@ const AppModal = (props: IProps) => {
               <Form.Control
                 type="text"
                 placeholder="..."
-                value={author}
+                value={author || ""}
                 onChange={(e) => setAuthor(e.target.value)}
               />
             </Form.Group>
@@ -81,7 +90,7 @@ const AppModal = (props: IProps) => {
               <Form.Control
                 as="textarea"
                 rows={3}
-                value={content}
+                value={content || ""}
                 onChange={(e) => setContent(e.target.value)}
               />
             </Form.Group>
@@ -92,7 +101,7 @@ const AppModal = (props: IProps) => {
             Close
           </Button>
           <Button onClick={() => handleSubmit()} variant="primary">
-            Save
+            Update
           </Button>
         </Modal.Footer>
       </Modal>
@@ -100,4 +109,4 @@ const AppModal = (props: IProps) => {
   );
 };
 
-export default AppModal;
+export default UpdateModal;

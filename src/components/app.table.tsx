@@ -4,13 +4,16 @@ import { Button } from "react-bootstrap";
 import Table from "react-bootstrap/Table";
 import AppModal from "./app.modal";
 import { useState } from "react";
+import UpdateModal from "./update.modal";
 interface IProps {
   blogs: IBlog[];
 }
 
 const AppTable = (props: IProps) => {
   const { blogs } = props;
-  const [showModal, setShowModal] = useState(false);
+  const [blog, setBlog] = useState<IBlog | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   return (
     <div>
       <div
@@ -18,7 +21,7 @@ const AppTable = (props: IProps) => {
         className="mb-3"
       >
         <h3>Table Blogs</h3>
-        <Button onClick={() => setShowModal(true)} variant="secondary">
+        <Button onClick={() => setShowCreateModal(true)} variant="secondary">
           Add New
         </Button>
       </div>
@@ -32,15 +35,22 @@ const AppTable = (props: IProps) => {
           </tr>
         </thead>
         <tbody>
-          {blogs?.map((blog) => {
+          {blogs?.map((item) => {
             return (
-              <tr key={blog.id}>
-                <td>{blog.id}</td>
-                <td>{blog.title}</td>
-                <td>{blog.author}</td>
+              <tr key={item.id}>
+                <td>{item.id}</td>
+                <td>{item.title}</td>
+                <td>{item.author}</td>
                 <td>
                   <Button>View</Button>
-                  <Button variant="warning" className="mx-3">
+                  <Button
+                    onClick={() => {
+                      setBlog(item);
+                      setShowUpdateModal(true);
+                    }}
+                    variant="warning"
+                    className="mx-3"
+                  >
                     Edit
                   </Button>
                   <Button variant="danger">Delete</Button>
@@ -50,7 +60,16 @@ const AppTable = (props: IProps) => {
           })}
         </tbody>
       </Table>
-      <AppModal showModal={showModal} setShowModal={setShowModal}></AppModal>
+      <AppModal
+        showModal={showCreateModal}
+        setShowModal={setShowCreateModal}
+      ></AppModal>
+      <UpdateModal
+        showModal={showUpdateModal}
+        setShowModal={setShowUpdateModal}
+        blog={blog}
+        setBlog={setBlog}
+      ></UpdateModal>
     </div>
   );
 };
